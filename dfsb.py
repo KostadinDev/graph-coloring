@@ -29,7 +29,6 @@ def construct_graph():
     for edge in edges:
         graph[edge[0]].append(edge[1])
         graph[edge[1]].append(edge[0])
-    print(graph)
     return graph, graph_coloring, edges, K
 
 
@@ -55,7 +54,7 @@ def get_neighbor_colors(graph, graph_coloring, node):
 def get_successors(graph, graph_coloring, node, colors):
     successors = []
     for neighbor in graph[node]:
-        if graph_coloring[neighbor] is not None:
+        if graph_coloring[neighbor] is None:
             neighbor_colors = get_neighbor_colors(graph, graph_coloring, neighbor)
             for color in colors:
                 if color not in neighbor_colors:
@@ -67,7 +66,6 @@ def get_successors(graph, graph_coloring, node, colors):
 
 def DFS(graph, graph_coloring, node, colors):
     if is_solution(graph_coloring):
-        print(graph_coloring)
         return graph_coloring
 
     for successor in get_successors(graph, graph_coloring, node, colors):
@@ -78,7 +76,7 @@ if __name__ == '__main__':
     graph, graph_coloring, edges, colors = construct_graph()
     graph_coloring['0'] = '0'
     graph_coloring['1'] = '1'
-    print(get_neighbor_colors(graph, graph_coloring, '4'))
-    # visualize(graph)
+    print(get_successors(graph, graph_coloring, '5', ['0', '1', '2', '3'])[3][1:3])
+# visualize(graph)
 
-    # DFS(graph, '0')
+# DFS(graph, '0')
