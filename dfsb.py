@@ -29,16 +29,14 @@ def construct_graph():
     for edge in edges:
         graph[edge[0]].append(edge[1])
         graph[edge[1]].append(edge[0])
-    return graph, graph_coloring, edges, K
+    return graph, graph_coloring, edges, colors
 
 
 # Checks if generated graph coloring is a solution.
 # Returns true if it is and false otherwise.
 def is_solution(graph_coloring, edges):
-    for node in graph_coloring:
-        for edge in edges:
-            if graph_coloring[edge[0]] == graph_coloring[edge[1]] or graph_coloring[edge[0]] is not None:
-                return False
+    if None in graph_coloring.values():
+        return False
     return True
 
 
@@ -51,6 +49,7 @@ def get_neighbor_colors(graph, graph_coloring, node):
     return colors
 
 
+# Gives the possible branching of a node
 def get_successors(graph, graph_coloring, node, colors):
     successors = []
     for neighbor in graph[node]:
@@ -60,23 +59,25 @@ def get_successors(graph, graph_coloring, node, colors):
                 if color not in neighbor_colors:
                     copy_graph_coloring = deepcopy(graph_coloring)
                     copy_graph_coloring[neighbor] = color
-                    successors.append((graph, copy_graph_coloring, neighbor, colors))
+                    successors.append((copy_graph_coloring, neighbor))
     return successors
 
 
-def DFS(graph, graph_coloring, node, colors):
-    if is_solution(graph_coloring):
+def DFSB(graph, graph_coloring, node, colors, edges):
+    if is_solution(graph_coloring, edges):
         return graph_coloring
-
-    for successor in get_successors(graph, graph_coloring, node, colors):
-        DFS(successor)
+    successors = get_successors(graph, graph_coloring, node, colors)
+    for successor in successors:
+        colored_graph = DFSB(graph, successor[0], successor[1], colors, edges)
+        if colored_graph is not None:
+            return colored_graph
+    return None
 
 
 if __name__ == '__main__':
     graph, graph_coloring, edges, colors = construct_graph()
     graph_coloring['0'] = '0'
-    graph_coloring['1'] = '1'
-    print(get_successors(graph, graph_coloring, '5', ['0', '1', '2', '3'])[3][1:3])
-# visualize(graph)
+    colored_graph = DFSB(graph, graph_coloring, '0', colors, edges)
+    print(colored_graph)
 
 # DFS(graph, '0')
