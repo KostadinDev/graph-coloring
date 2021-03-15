@@ -2,6 +2,7 @@ import sys
 from itertools import groupby
 from visual_graph import visualize
 from copy import deepcopy
+import random
 
 
 # Constructs an adjacency list representation of a graph from the input
@@ -35,8 +36,12 @@ def construct_graph():
 # Checks if generated graph coloring is a solution.
 # Returns true if it is and false otherwise.
 def is_solution(graph_coloring, edges):
-    if None in graph_coloring.values():
-        return False
+    # if None in graph_coloring.values():
+    #     return False
+    for edge in edges:
+        if graph_coloring[edge[0]] == graph_coloring[edge[1]] or graph_coloring[edge[0]] is None or graph_coloring[
+            edge[1]] is None:
+            return False
     return True
 
 
@@ -63,6 +68,7 @@ def get_successors(graph, graph_coloring, node, colors):
     return successors
 
 
+# Depth first searching for backtracking
 def DFSB(graph, graph_coloring, node, colors, edges):
     if is_solution(graph_coloring, edges):
         return graph_coloring
@@ -74,10 +80,55 @@ def DFSB(graph, graph_coloring, node, colors, edges):
     return None
 
 
-if __name__ == '__main__':
-    graph, graph_coloring, edges, colors = construct_graph()
+# DFSB DRIVER
+
+def DFSB_DRIVER(graph, graph_coloring, edges, colors):
     graph_coloring['0'] = '0'
     colored_graph = DFSB(graph, graph_coloring, '0', colors, edges)
     print(colored_graph)
+    visualize(graph)
 
-# DFS(graph, '0')
+
+def get_random_color(colors):
+    return random.choice(colors)
+    pass
+
+
+def get_random_coloring(graph_coloring, colors):
+    for node in graph_coloring:
+        graph_coloring[node] = get_random_color(colors)
+    return graph_coloring
+
+
+def get_conflicted(graph, graph_coloring, edges):
+    random.shuffle(edges)
+    for edge in edges:
+        if graph_coloring[edge[0]] == graph_coloring[edge[1]]:
+            return random.choice(edge)
+    return -1
+
+
+def get_least_conflict(graph, graph_coloring, edges, node):
+    pass
+
+
+def min_conflict(graph, graph_coloring, edges, colors, max_steps):
+    graph_coloring = get_random_coloring(graph_coloring, colors)
+    for i in range(max_steps):
+        node = get_conflicted(graph, graph_coloring, edges)
+        if node == -1:
+            print('Solution found')
+            return graph_coloring
+
+        new_color = get_least_conflict(graph, graph_coloring, edges, node)
+        graph_coloring[node] = new_color
+
+
+def min_conflict_DRIVER(graph, graph_coloring, edges, colors):
+    min_conflict(graph, graph_coloring, edges, colors, 10000)
+
+
+if __name__ == '__main__':
+    graph, graph_coloring, edges, colors = construct_graph()
+    # DFSB_DRIVER(graph, graph_coloring, edges, colors)
+    min_conflict_DRIVER(graph, graph_coloring, edges, colors)
